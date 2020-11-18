@@ -1,0 +1,35 @@
+---
+- debug:
+    msg: "ssl key found: {{ freeradius.ssl_key[:26] }}"
+
+- debug:
+    msg: "ssl cert found: {{ freeradius.ssl_cert[:26] }}"
+
+- name: copy the certificate files
+  copy:
+    content: "{{ item.content }}"
+    dest: "/etc/freeradius/certs/{{ item.filename }}"
+  loop:
+    - { filename: dh, content: "{{ freeradius_ssl_dh }}" }
+    - { filename: server.key, content: "{{freeradius.ssl_key}}" }
+    - { filename: server.pem, content: "{{freeradius.ssl_cert}}" }
+    - { filename: ca.pem, content: "{{freeradius.ssl_chain}}" }
+  register: radius_cert_result
+  notify: restart-radius
+
+# get contents of certs dir
+- name: get contents of certs dir
+  shell: ls -1 /etc/freeradius/certs/*
+  register: certs_contents
+  check_mode: no
+  changed_when: false
+
+# so we can delete the ones we don't manage
+- name: delete old certs
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items: "{{ certs_contents.stdout_lines }}"
+  when: item not in radius_cert_result.results|selectattr('dest', 'string')|map(attribute='dest')|list
+  notify: restart-radius
+...

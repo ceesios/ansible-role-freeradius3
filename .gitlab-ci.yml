@@ -1,0 +1,46 @@
+---
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  GIT_STRATEGY: clone
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - export MOLECULE_NO_LOG="false"
+  - virtualenv venv
+  - source venv/bin/activate
+  - pip install ansible ansible-lint molecule 'molecule[docker]' docker
+  - ansible --version
+
+stages:
+  - test
+
+test:
+  stage: test
+  script:
+    - grep "A brief description of the role goes here." README.md &&
+      echo -e "\033[0;31m PLease modify README.md \033[0m" && exit 1 ||
+      echo -e "\033[0;32m README.md ok \033[0m" exit 0
+    - molecule test
+
+## If you disable molecule, please at least do linting and syntax checking.
+# stages:
+#   - lint
+#   - ansible-syntax-check
+
+# lint:
+#   stage: lint
+#   script:
+#     - yamllint -c .yamllint .
+#     - ansible-lint -c .ansible-lint tasks/main.yml -v
+
+# ansible-syntax-check:
+#   stage: ansible-syntax-check
+#   script:
+#     - ansible-playbook
+#       --syntax-check
+#       molecule/playbook.yml
+...

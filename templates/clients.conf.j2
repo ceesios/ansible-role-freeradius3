@@ -1,0 +1,18 @@
+{{ ansible_managed | comment }}
+
+{% for client in rad_conf_item.value.client_list %}
+client {{ client.title }} {
+{% for config_key, config_value in client.client_config.items() %}
+{% if config_key == "limit" %}
+        limit {
+{% for limit_key, limit_value in config_value.items() %}
+                {{ limit_key }} = {{ limit_value }}
+{% endfor %}
+        }
+{% else %}
+        {{ config_key }} = {{ config_value }}
+{% endif %}
+{% endfor %}
+
+}
+{% endfor %}

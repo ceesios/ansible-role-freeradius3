@@ -1,0 +1,57 @@
+---
+- name: add key
+  apt_key:
+    keyserver: keys.gnupg.net
+    id: "0x41382202"
+  tags: radius
+
+- name: add repo
+  apt_repository:
+    filename: freeradius-ubuntu-stable-3_0-bionic
+    repo: deb http://packages.networkradius.com/releases/ubuntu-bionic bionic main
+  tags: radius
+
+- name: install necessary packages
+  package:
+    name:
+      - freeradius
+      - freeradius-mysql
+      - freeradius-utils
+      - mysql-client
+    state: present
+  tags: radius
+
+# Ubuntu creates a 3.0 directory that is not used with the packages from the repo.
+- name: include ubuntu directory fixes
+  include: ubuntu_config_dir.yml
+  when: ansible_distribution|lower == 'ubuntu'
+
+- name: configure ssl when needed
+  include: ssl.yml
+  when: freeradius.ssl_cert is defined
+  tags:
+    - radius
+    - vault
+    - ssl
+
+- name: configure freeradius modules
+  include: modules.yml
+  when: freeradius.modules is defined
+  tags:
+    - radius
+    - modules
+
+- name: configure freeradius sites
+  include: sites.yml
+  when: freeradius.sites is defined
+  tags:
+    - radius
+    - sites
+
+- name: configure freeradius config
+  include: config.yml
+  when: freeradius.config is defined
+  tags:
+    - radius
+    - config
+...

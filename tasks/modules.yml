@@ -1,0 +1,45 @@
+---
+- name: copy module configuration
+  copy:
+    src: "{{ item.value.config_file }}"
+    dest: /etc/freeradius/mods-available/{{ item.key }}
+  with_dict: "{{ freeradius.modules }}"
+  when:
+    - item.value.disabled is undefined or (item.value.disabled is defined and not item.value.disabled)
+    - item.value.config_file is defined
+  notify: restart-radius
+
+- name: template module configuration
+  template:
+    src: "{{ item.value.config_template }}"
+    dest: /etc/freeradius/mods-available/{{ item.key }}
+  with_dict: "{{ freeradius.modules }}"
+  when:
+    - item.value.disabled is undefined or (item.value.disabled is defined and not item.value.disabled)
+    - item.value.config_template is defined
+  notify: restart-radius
+
+- name: enable modules by symlinking them
+  file:
+    src: "../mods-available/{{ item.key }}"
+    path: "/etc/freeradius/mods-enabled/{{ item.key }}"
+    state: link
+  with_dict: "{{ freeradius.modules }}"
+  when: item.value.disabled is undefined or (item.value.disabled is defined and not item.value.disabled)
+  register: enable_mod_result
+  notify: restart-radius
+
+- name: get contents of mods-enabled dir
+  shell: ls -1 /etc/freeradius/mods-enabled/*
+  register: modsenabled_contents
+  check_mode: no
+  changed_when: false
+
+- name: delete old mods-enabled
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items: "{{ modsenabled_contents.stdout_lines }}"
+  when: item not in enable_mod_result.results|selectattr('dest', 'string')|map(attribute='dest')|list
+  notify: restart-radius
+...

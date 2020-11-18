@@ -1,0 +1,71 @@
+---
+freeradius_ssl_dh: |
+    -----BEGIN DH PARAMETERS-----
+    MIGHAoGBAOi4jKRQpxaycsaK1GYXrp4E1rnL2YL/5a7xka+vy8+5EMXP3uldS+DX
+    +xv/9r3kMGlnsw0QSib0d3+Vq/Ph4x5fKCKcsYcc1PYQZPBDKKXFpWAKTQ5F7CzQ
+    PtFFk/7BFclkeSNv0YjshE4haWiCeufs8dDBDlpzYklue1lKKKiTAgEC
+    -----END DH PARAMETERS-----
+freeradius:
+  config:
+    dictionary:
+      disabled: true  # not configured by default
+  sites:
+    default:
+      config_file: "sites/default"
+    inner-tunnel:
+      config_file: "sites/inner-tunnel"
+  modules:
+    always:
+    attr_filter:
+    cache_eap:
+    chap:
+    date:
+    detail:
+    detail.log:
+    digest:
+    dynamic_clients:
+    eap:
+      config_file: "modules/eap"
+    echo:
+      disabled: true  # enables execution of local commands
+    exec:  # enables execution of local commands
+    expiration:
+    expr:
+    files:  # required. tbv Livingston-style 'users' file
+    linelog:
+    logintime:
+    mschap:
+    ntlm_auth:
+      disabled: true  # not configured by default
+    pap:
+    passwd:  # passwd module allows authorization via passwd-like file.
+      disabled: true  # defaults to /etc/passwd
+    preprocess:  # This module processes the 'huntgroups' and 'hints' files.
+    radutmp:  # Write a 'utmp' style file, of which users are currently logged in.
+    realm:  # Realm module, for proxying.
+    replicate:  # Replicate packet(s) to a home server.
+      disabled: true  # not configured by default
+    soh:  # implements support for Microsoft’s Statement of Health (SoH) protocol.
+    sql:
+      disabled: true  # not configured by default
+      config_template: "modules/sql.j2"
+      dialect: "mysql"
+      server: ""
+      login: "radius"
+      password: ""
+      radius_db: "radius"
+      acct_table1: "radacct"
+      acct_table2: "radacct"
+      postauth_table: "radpostauth"
+      authcheck_table: "radcheck"
+      authreply_table: "radreply"
+      groupcheck_table: "radgroupcheck"
+      groupreply_table: "radgroupreply"
+      usergroup_table: "radusergroup"
+      deletestalesessions: yes
+      client_table: "nas"
+    sradutmp:  # "Safe" radutmp - does not contain caller ID
+    unix:
+    unpack:
+    utf8:
+...

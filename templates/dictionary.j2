@@ -1,0 +1,5 @@
+{{ ansible_managed | comment }}
+{% if "include_usr_share" in freeradius.config.dictionary %}
+{% if freeradius.config.dictionary.include_usr_share %}
+$INCLUDE        /usr/share/freeradius/dictionary
+{% endif %}{% endif %}

@@ -1,0 +1,51 @@
+---
+- name: template configuration
+  template:
+    src: "{{ rad_conf_item.value.filename }}.j2"
+    dest: /etc/freeradius/{{ rad_conf_item.value.filename }}
+  with_dict: "{{ freeradius.config }}"
+  # loop: "{{ freeradius.config|dict2items }}"
+  loop_control:
+    loop_var: rad_conf_item
+  when: >
+    rad_conf_item.value.disabled is undefined or (
+      rad_conf_item.value.disabled is defined and
+      not rad_conf_item.value.disabled
+    )
+  notify: restart-radius
+  register: template_config
+  tags: config
+
+- name: get contents of config dir
+  shell: find /etc/freeradius/ -maxdepth 1 -type f
+  register: configfiles
+  check_mode: no
+  changed_when: False
+  tags: config
+
+- name: list of items never to delete
+  set_fact:
+    safelist:
+      - "/etc/freeradius/mods-available"
+      - "/etc/freeradius/mods-config"
+      - "/etc/freeradius/mods-enabled"
+      - "/etc/freeradius/policy.d"
+      - "/etc/freeradius/README.rst"
+      - "/etc/freeradius/sites-available"
+      - "/etc/freeradius/sites-enabled"
+      - "/etc/freeradius/users"
+      - "/etc/freeradius/radiusd.conf"
+  tags: config
+
+- name: delete unmanaged config
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items: "{{ configfiles.stdout_lines }}"
+  when:
+   - item not in template_config.results|selectattr('dest', 'string')|map(attribute='dest')|list
+   - item not in safelist
+  notify: restart-radius
+  check_mode: yes
+  tags: config
+...

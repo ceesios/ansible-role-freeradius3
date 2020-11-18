@@ -1,0 +1,73 @@
+{% set radius_sql = freeradius.modules.sql %}
+
+sql {
+    dialect = {{ radius_sql.dialect | default("sqlite") }}
+    driver = "rlm_sql_${dialect}"
+{% if radius_sql.dialect == "sqlite" %}
+    sqlite {
+        filename = "/tmp/freeradius.db"
+        busy_timeout = 200
+        bootstrap = "${modconfdir}/${..:name}/main/sqlite/schema.sql"
+    }
+{% elif radius_sql.dialect == "mysql" %}
+    mysql {
+{% if 'tls' in radius_sql %}
+        tls {
+            ca_file = "/etc/ssl/certs/my_ca.crt"
+            ca_path = "/etc/ssl/certs/"
+            certificate_file = "/etc/ssl/certs/private/client.crt"
+            private_key_file = "/etc/ssl/certs/private/client.key"
+            cipher = "DHE-RSA-AES256-SHA:AES128-SHA"
+            tls_required = yes
+            tls_check_cert = no
+            tls_check_cert_cn = no
+        }
+{% endif %}
+        warnings = auto
+    }
+{% elif radius_sql.dialect == "postgresql" %}
+    postgresql {
+        send_application_name = yes
+    }
+{% elif radius_sql.dialect == "mongo" %}
+    mongo {
+        appname = "freeradius"
+        tls {
+            certificate_file = /path/to/file
+            certificate_password = "password"
+            ca_file = /path/to/file
+            ca_dir = /path/to/directory
+            crl_file = /path/to/file
+            weak_cert_validation = false
+            allow_invalid_hostname = false
+        }
+    }
+{% endif %}
+    server = {{ radius_sql.server | default("localhost") }}
+    port = {{ radius_sql.port | default("3306") }}
+    login = {{ radius_sql.login | default("radius") }}
+    password = {{ radius_sql.password | default("radpass") }}
+    radius_db = {{ radius_sql.radius_db | default("radius") }}
+    acct_table1 = {{ radius_sql.acct_table1 | default("radacct") }}
+    acct_table2 = {{ radius_sql.acct_table2 | default("radacct") }}
+    postauth_table = {{ radius_sql.postauth_table | default("radpostauth") }}
+    authcheck_table = {{ radius_sql.authcheck_table | default("radcheck") }}
+    groupcheck_table = {{ radius_sql.groupcheck_table | default("radgroupcheck") }}
+    authreply_table = {{ radius_sql.authreply_table | default("radreply") }}
+    groupreply_table = {{ radius_sql.groupreply_table | default("radgroupreply") }}
+    usergroup_table = {{ radius_sql.usergroup_table | default("radusergroup") }}
+    delete_stale_sessions = {{ radius_sql.deletestalesessions | default("yes") }}
+    pool {
+        start = ${thread[pool].start_servers}
+        min = ${thread[pool].min_spare_servers}
+        max = ${thread[pool].max_servers}
+        spare = ${thread[pool].max_spare_servers}
+        uses = 0
+        retry_delay = 30
+        lifetime = 0
+        idle_timeout = 60
+    }
+    client_table = {{ radius_sql.client_table | default("nas") }}
+    group_attribute = "SQL-Group"
+    $INCLUDE ${modconfdir}/${.:name}/main/${dialect}/queries.conf
+}

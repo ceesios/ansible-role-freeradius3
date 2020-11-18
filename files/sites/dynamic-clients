@@ -1,0 +1,21 @@
+client dynamic {
+    ipaddr = 0.0.0.0/0
+    dynamic_clients = dynamic_clients
+    lifetime = 5 #default is 3600s
+}
+server dynamic_clients {
+    authorize {
+        dynamic_clients
+        if ("%{sql: SELECT nasname FROM nas WHERE nasname = '%{Packet-Src-IP-Address}'}") {
+            update control {
+                &FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
+                &FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
+                &FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
+                &FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
+                # &FreeRADIUS-Client-Virtual-Server = "%{sql: SELECT server FROM nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
+                &FreeRADIUS-Client-Virtual-Server = "default"
+            }
+        }
+        ok
+    }
+}
