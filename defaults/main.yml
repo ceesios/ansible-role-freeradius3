@@ -8,51 +8,55 @@ freeradius_ssl_dh: |
 freeradius:
   config:
     dictionary:
+      filename: "dictionary"
       disabled: true  # not configured by default
+    radiusd:
+      filename: "radiusd.conf"
+      disabled: false
   sites:
     default:
       config_file: "sites/default"
     inner-tunnel:
       config_file: "sites/inner-tunnel"
   modules:
-    always:
-    attr_filter:
-    cache_eap:
-    chap:
-    date:
-    detail:
-    detail.log:
-    digest:
-    dynamic_clients:
+    always: []
+    attr_filter: []
+    cache_eap: []
+    chap: []
+    date: []
+    detail: []
+    detail.log: []
+    digest: []
+    dynamic_clients: []
     eap:
       config_file: "modules/eap"
     echo:
       disabled: true  # enables execution of local commands
-    exec:  # enables execution of local commands
-    expiration:
-    expr:
-    files:  # required. tbv Livingston-style 'users' file
-    linelog:
-    logintime:
-    mschap:
+    exec: []  # enables execution of local commands
+    expiration: []
+    expr: []
+    files: []  # required. tbv Livingston-style 'users' file
+    linelog: []
+    logintime: []
+    mschap: []
     ntlm_auth:
       disabled: true  # not configured by default
-    pap:
+    pap: []
     passwd:  # passwd module allows authorization via passwd-like file.
       disabled: true  # defaults to /etc/passwd
-    preprocess:  # This module processes the 'huntgroups' and 'hints' files.
-    radutmp:  # Write a 'utmp' style file, of which users are currently logged in.
-    realm:  # Realm module, for proxying.
+    preprocess: []  # This module processes the 'huntgroups' and 'hints' files.
+    radutmp: []  # Write a 'utmp' style file, of which users are currently logged in.
+    realm: []  # Realm module, for proxying.
     replicate:  # Replicate packet(s) to a home server.
       disabled: true  # not configured by default
-    soh:  # implements support for Microsoft’s Statement of Health (SoH) protocol.
+    soh: []  # implements support for Microsoft’s Statement of Health (SoH) protocol.
     sql:
       disabled: true  # not configured by default
       config_template: "modules/sql.j2"
       dialect: "mysql"
-      server: ""
+      server: []
       login: "radius"
-      password: ""
+      password: []
       radius_db: "radius"
       acct_table1: "radacct"
       acct_table2: "radacct"
@@ -64,8 +68,8 @@ freeradius:
       usergroup_table: "radusergroup"
       deletestalesessions: yes
       client_table: "nas"
-    sradutmp:  # "Safe" radutmp - does not contain caller ID
-    unix:
-    unpack:
-    utf8:
+    sradutmp: []  # "Safe" radutmp - does not contain caller ID
+    unix: []
+    unpack: []
+    utf8: []
 ...

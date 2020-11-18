@@ -3,6 +3,7 @@
   copy:
     src: "{{ item.value.config_file }}"
     dest: /etc/freeradius/sites-available/{{ item.key }}
+    mode: 0644
   with_dict: "{{ freeradius.sites }}"
   when:
     - item.value.disabled is undefined or (item.value.disabled is defined and not item.value.disabled)
@@ -32,6 +33,5 @@
   with_items: "{{ sitesenabled_contents.stdout_lines }}"
   when: item not in enable_mod_result.results|selectattr('dest', 'string')|map(attribute='dest')|list
   notify: restart-radius
-
 
 ...

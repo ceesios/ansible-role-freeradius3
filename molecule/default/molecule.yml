@@ -9,11 +9,11 @@ lint: |
   ansible-lint -c .ansible-lint . -v
 platforms:
   - name: instance
-    image: ubuntu
+    image: ubuntu:18.04
     privileged: true
     volumes:
       - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
-    
+
     tty: True
     env:
       container: docker

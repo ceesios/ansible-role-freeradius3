@@ -1,3 +1,5 @@
+{{ ansible_managed | comment }}
+
 prefix = /usr
 exec_prefix = /usr
 sysconfdir = /etc
@@ -42,9 +44,15 @@ security {
 	reject_delay = 1
 	status_server = yes
 }
+{% if "proxy" in freeradius.config %}
 proxy_requests  = yes
 $INCLUDE proxy.conf
+{% endif %}
+
+{% if "clients" in freeradius.config %}
 $INCLUDE clients.conf
+{% endif %}
+
 thread pool {
 	start_servers = 5
 	max_servers = 32

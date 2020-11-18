@@ -1,25 +1,34 @@
 
-[![pipeline status](https://rws-ipvl-git001.mgm.rws.local/linux/ansible/roles/freeradius/badges/master/pipeline.svg)](https://rws-ipvl-git001.mgm.rws.local/linux/ansible/roles/freeradius/-/jobs)
+
 freeradius
 =========
 
-A brief description of the role goes here.
+Role that installs and configures freeradius 3 on Ubuntu Bionic. It will remove any unmanaged configuration to ensure a clean setup of freeradius.
+
+This role might need some work for your situation! I will try to add soms functionality when i find the time for it.
+Some examples that are not (yet) included in the role and will be cleaned up (deleted).
+
+- proxy config
+- trigger config
+- templates config
+- panic.gdb
+- dictionary config
+- policy.d
+
+Other stuff that could be better:
+- actual cleanup of unmanaged config files
+- sites should be templated
+- other os releases must be added
+
+The role uses a single dict for configuration. This is so that all defaults will be overridden if you create your own configuration. wich we recommend. Use ansible merge strategy if you would like to configure the role on multiple levels such as the defaults.
+
 
 Requirements
 ------------
-
-Any pre-requisites that may not be covered by Ansible itself or the role should
-be mentioned here. For instance, if the role uses the EC2 module, it may be a
-good idea to mention in this section that the boto package is required.
+-
 
 Role Variables
 --------------
-
-A description of the settable variables for this role should go here, including
-any variables that are in defaults/main.yml, vars/main.yml, and any variables
-that can/should be set via parameters to the role. Any variables that are read
-from other roles and/or the global scope (ie. hostvars, group vars, etc.) should
-be mentioned here as well.
 
 | var_name | required | default | description |
 | -------- | -------- | ------- | ----------- |

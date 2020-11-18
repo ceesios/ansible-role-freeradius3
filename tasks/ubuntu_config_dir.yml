@@ -13,6 +13,7 @@
     remote_src: True
     src: /etc/freeradius/3.0/
     dest: /etc/freeradius/3.0_old
+    mode: 0644
   when:
     - freeradius_3_configdir.stat.exists
     - freeradius_3_configdir.stat.isdir is defined and freeradius_3_configdir.stat.isdir
@@ -31,7 +32,7 @@
 
 - name: symlink config dir to old path for backwards compatibility
   file:
-    src:  /etc/freeradius
+    src: /etc/freeradius
     dest: /etc/freeradius/3.0
     state: link
   tags:

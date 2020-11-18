@@ -3,6 +3,7 @@
   copy:
     src: "{{ item.value.config_file }}"
     dest: /etc/freeradius/mods-available/{{ item.key }}
+    mode: 0644
   with_dict: "{{ freeradius.modules }}"
   when:
     - item.value.disabled is undefined or (item.value.disabled is defined and not item.value.disabled)
@@ -13,6 +14,7 @@
   template:
     src: "{{ item.value.config_template }}"
     dest: /etc/freeradius/mods-available/{{ item.key }}
+    mode: 0644
   with_dict: "{{ freeradius.modules }}"
   when:
     - item.value.disabled is undefined or (item.value.disabled is defined and not item.value.disabled)

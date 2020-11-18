@@ -3,6 +3,7 @@
   template:
     src: "{{ rad_conf_item.value.filename }}.j2"
     dest: /etc/freeradius/{{ rad_conf_item.value.filename }}
+    mode: 0644
   with_dict: "{{ freeradius.config }}"
   # loop: "{{ freeradius.config|dict2items }}"
   loop_control:
@@ -17,7 +18,7 @@
   tags: config
 
 - name: get contents of config dir
-  shell: find /etc/freeradius/ -maxdepth 1 -type f
+  command: find /etc/freeradius/ -maxdepth 1 -type f
   register: configfiles
   check_mode: no
   changed_when: False
@@ -43,9 +44,10 @@
     state: absent
   with_items: "{{ configfiles.stdout_lines }}"
   when:
-   - item not in template_config.results|selectattr('dest', 'string')|map(attribute='dest')|list
-   - item not in safelist
+    - item not in template_config.results|selectattr('dest', 'string')|map(attribute='dest')|list
+    - item not in safelist
+    # - item not in freeradius.config  ## WIP disabled files should be deleted.
   notify: restart-radius
-  check_mode: yes
+  check_mode: yes  ## WIP check mode can be discarded when done
   tags: config
 ...

@@ -9,11 +9,12 @@
   copy:
     content: "{{ item.content }}"
     dest: "/etc/freeradius/certs/{{ item.filename }}"
+    mode: "{{ item.mode | default('0644') }}"
   loop:
     - { filename: dh, content: "{{ freeradius_ssl_dh }}" }
-    - { filename: server.key, content: "{{freeradius.ssl_key}}" }
-    - { filename: server.pem, content: "{{freeradius.ssl_cert}}" }
-    - { filename: ca.pem, content: "{{freeradius.ssl_chain}}" }
+    - { filename: server.key, content: "{{ freeradius.ssl_key }}", mode: 0640 }
+    - { filename: server.pem, content: "{{ freeradius.ssl_cert }}" }
+    - { filename: ca.pem, content: "{{ freeradius.ssl_chain }}" }
   register: radius_cert_result
   notify: restart-radius
 

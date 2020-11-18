@@ -14,12 +14,6 @@ ENV {{ var }} {{ value }}
 {% endfor %}
 {% endif %}
 
-RUN rm /etc/rhsm-host -rf && \ 
-    rm /etc/yum.repos.d/ubi.repo && \
-    uuid=$(uuidgen) && \
-    echo '{"dmi.system.uuid": "'$uuid'"}' > /etc/rhsm/facts/uuid.facts && \
-    rpm -ivh http://nwr-ipvl-sat006.mgm.rws.local/pub/katello-ca-consumer-latest.noarch.rpm && \
-    subscription-manager register --org="RWS" --activationkey="AK_SOE8_ONTE,AK_RWS8_ONTE" && \
-    dnf makecache && \
-    dnf --assumeyes install sudo bash python3 python3-devel python3-dnf && \
-    dnf clean all
+RUN apt update && \
+    apt upgrade -y && \
+    apt -y install python gpg
