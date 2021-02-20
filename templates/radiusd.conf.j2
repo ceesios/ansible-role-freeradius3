@@ -1,5 +1,7 @@
 {{ ansible_managed | comment }}
 
+{% set radiusd = freeradius.config.radiusd %}
+
 prefix = /usr
 exec_prefix = /usr
 sysconfdir = /etc
@@ -54,12 +56,13 @@ $INCLUDE clients.conf
 {% endif %}
 
 thread pool {
-	start_servers = 5
-	max_servers = 32
-	min_spare_servers = 3
-	max_spare_servers = 10
-	max_requests_per_server = 0
-	auto_limit_acct = no
+	start_servers = {{ radiusd.thread_pool.start_servers }}
+	max_servers = {{ radiusd.thread_pool.max_servers }}
+	min_spare_servers = {{ radiusd.thread_pool.min_spare_servers }}
+	max_spare_servers = {{ radiusd.thread_pool.max_spare_servers }}
+	max_requests_per_server = {{ radiusd.thread_pool.max_requests_per_server }}
+	auto_limit_acct = {{ radiusd.thread_pool.auto_limit_acct }}
+	max_queue_size = {{ radiusd.thread_pool.max_queue_size }}
 }
 modules {
 	$INCLUDE mods-enabled/

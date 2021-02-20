@@ -2,7 +2,7 @@
 - name: template configuration
   template:
     src: "{{ rad_conf_item.value.filename }}.j2"
-    dest: /etc/freeradius/{{ rad_conf_item.value.filename }}
+    dest: "{{ freeradius_conf_dir }}/{{ rad_conf_item.value.filename }}"
     mode: 0644
   with_dict: "{{ freeradius.config }}"
   # loop: "{{ freeradius.config|dict2items }}"
@@ -18,7 +18,7 @@
   tags: config
 
 - name: get contents of config dir
-  command: find /etc/freeradius/ -maxdepth 1 -type f
+  command: "find {{ freeradius_conf_dir }}/ -maxdepth 1 -type f"
   register: configfiles
   check_mode: no
   changed_when: False
@@ -27,15 +27,15 @@
 - name: list of items never to delete
   set_fact:
     safelist:
-      - "/etc/freeradius/mods-available"
-      - "/etc/freeradius/mods-config"
-      - "/etc/freeradius/mods-enabled"
-      - "/etc/freeradius/policy.d"
-      - "/etc/freeradius/README.rst"
-      - "/etc/freeradius/sites-available"
-      - "/etc/freeradius/sites-enabled"
-      - "/etc/freeradius/users"
-      - "/etc/freeradius/radiusd.conf"
+      - "{{ freeradius_conf_dir }}/mods-available"
+      - "{{ freeradius_conf_dir }}/mods-config"
+      - "{{ freeradius_conf_dir }}/mods-enabled"
+      - "{{ freeradius_conf_dir }}/policy.d"
+      - "{{ freeradius_conf_dir }}/README.rst"
+      - "{{ freeradius_conf_dir }}/sites-available"
+      - "{{ freeradius_conf_dir }}/sites-enabled"
+      - "{{ freeradius_conf_dir }}/users"
+      - "{{ freeradius_conf_dir }}/radiusd.conf"
   tags: config
 
 - name: delete unmanaged config
@@ -46,8 +46,6 @@
   when:
     - item not in template_config.results|selectattr('dest', 'string')|map(attribute='dest')|list
     - item not in safelist
-    # - item not in freeradius.config  ## WIP disabled files should be deleted.
   notify: restart-radius
-  check_mode: yes  ## WIP check mode can be discarded when done
   tags: config
 ...

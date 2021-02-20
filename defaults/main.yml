@@ -13,6 +13,14 @@ freeradius:
     radiusd:
       filename: "radiusd.conf"
       disabled: false
+      thread_pool:
+        start_servers: 5  # 5 by default
+        max_servers: 64  # 32 by default
+        min_spare_servers: 3  # 3 by default
+        max_spare_servers: 10  # 10 by default
+        max_requests_per_server: 0  # 0 by default
+        auto_limit_acct: yes  # no by default
+        max_queue_size: 65536  # 65536 by default
   sites:
     default:
       config_file: "sites/default"

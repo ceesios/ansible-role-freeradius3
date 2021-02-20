@@ -8,11 +8,13 @@
 - name: copy the certificate files
   copy:
     content: "{{ item.content }}"
-    dest: "/etc/freeradius/certs/{{ item.filename }}"
-    mode: "{{ item.mode | default('0644') }}"
+    dest: "{{ freeradius_conf_dir }}/certs/{{ item.filename }}"
+    mode: "{{ item.mode | default('0640') }}"
+    owner: "freerad"
+    group: "freerad"
   loop:
     - { filename: dh, content: "{{ freeradius_ssl_dh }}" }
-    - { filename: server.key, content: "{{ freeradius.ssl_key }}", mode: 0640 }
+    - { filename: server.key, content: "{{ freeradius.ssl_key }}", mode: "0640" }
     - { filename: server.pem, content: "{{ freeradius.ssl_cert }}" }
     - { filename: ca.pem, content: "{{ freeradius.ssl_chain }}" }
   register: radius_cert_result
@@ -20,7 +22,7 @@
 
 # get contents of certs dir
 - name: get contents of certs dir
-  shell: ls -1 /etc/freeradius/certs/*
+  shell: "ls -1 {{ freeradius_conf_dir }}/certs/*"
   register: certs_contents
   check_mode: no
   changed_when: false

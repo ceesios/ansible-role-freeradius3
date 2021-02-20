@@ -5,11 +5,22 @@
     id: "0x41382202"
   tags: radius
 
-- name: add repo
+- name: show lsb codename
+  debug:
+    msg: "{{ ansible_lsb }}"
+  tags: radius
+
+- name: add repo for bionic
   apt_repository:
     filename: freeradius-ubuntu-stable-3_0-bionic
     repo: deb http://packages.networkradius.com/releases/ubuntu-bionic bionic main
+  when: ansible_lsb.codename|lower == "bionic"
   tags: radius
+
+- name: Unhold mysql
+  shell: 'apt-mark unhold mysql-client*'
+  tags: mysql
+  when: ansible_os_family == 'Debian'
 
 - name: install necessary packages
   package:
@@ -21,35 +32,73 @@
     state: present
   tags: radius
 
-# Ubuntu creates a 3.0 directory that is not used with the packages from the repo.
+- name: Hold mysql
+  shell: 'apt-mark hold mysql-client*'
+  tags: mysql
+  when: ansible_os_family == 'Debian'
+
+# Ubuntu creates a 3.0 directory that is not used with the packages from
+# the repo on 18.04. on 20.04 we can keep the 3.0 directory.
 - name: include ubuntu directory fixes
   include: ubuntu_config_dir.yml
-  when: ansible_distribution|lower == 'ubuntu'
+  when: ansible_lsb.codename|lower == "bionic"
+
+
+- name: set freeradius_conf_dir
+  set_fact:
+    freeradius_conf_dir: "/etc/freeradius"
+  when: ansible_lsb.codename|lower == "bionic"
+  tags: always
+
+- name: set freeradius_conf_dir
+  set_fact:
+    freeradius_conf_dir: "/etc/freeradius/3.0"
+  when: ansible_lsb.codename|lower != "bionic"
+  tags: always
 
 - name: configure ssl when needed
-  include: ssl.yml
+  include_tasks:
+    file: ssl.yml
+    apply:
+      tags:
+        - radius
+        - ssl
   when: freeradius.ssl_cert is defined
   tags:
     - radius
-    - vault
     - ssl
 
 - name: configure freeradius modules
-  include: modules.yml
+  include_tasks:
+    file: modules.yml
+    apply:
+      tags:
+        - radius
+        - modules
   when: freeradius.modules is defined
   tags:
     - radius
     - modules
 
 - name: configure freeradius sites
-  include: sites.yml
+  include_tasks:
+    file: sites.yml
+    apply:
+      tags:
+        - radius
+        - sites
   when: freeradius.sites is defined
   tags:
     - radius
     - sites
 
 - name: configure freeradius config
-  include: config.yml
+  include_tasks:
+    file: config.yml
+    apply:
+      tags:
+        - radius
+        - config
   when: freeradius.config is defined
   tags:
     - radius
