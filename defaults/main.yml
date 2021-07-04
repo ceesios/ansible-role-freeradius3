@@ -33,7 +33,11 @@ freeradius:
     chap: []
     date: []
     detail: []
-    detail.log: []
+    detail_log:
+      disabled: false
+      config_template: "modules/detail.log.j2"
+      add_ipdir: false # This breaks the default syslog config
+      add_date: false # adding dates breaks syslog
     digest: []
     dynamic_clients: []
     eap:

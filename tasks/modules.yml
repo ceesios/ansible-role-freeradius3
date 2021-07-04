@@ -9,6 +9,7 @@
     - item.value.disabled is undefined or (item.value.disabled is defined and not item.value.disabled)
     - item.value.config_file is defined
   notify: restart-radius
+  tags: modules
 
 - name: template module configuration
   template:
@@ -20,6 +21,7 @@
     - item.value.disabled is undefined or (item.value.disabled is defined and not item.value.disabled)
     - item.value.config_template is defined
   notify: restart-radius
+  tags: modules
 
 - name: enable modules by symlinking them
   file:
@@ -30,15 +32,18 @@
   when: item.value.disabled is undefined or (item.value.disabled is defined and not item.value.disabled)
   register: enable_mod_result
   notify: restart-radius
+  tags: modules
 
 - name: get contents of mods-enabled dir
   shell: "ls -1 {{ freeradius_conf_dir }}/mods-enabled/*"
   register: modsenabled_contents
   check_mode: no
   changed_when: false
+  tags: modules
 
 - debug:
     msg: "{{ enable_mod_result.results|selectattr('dest', 'string')|map(attribute='dest')|list }}"
+  tags: modules
 
 - name: delete old mods-enabled
   file:
@@ -47,4 +52,5 @@
   with_items: "{{ modsenabled_contents.stdout_lines }}"
   when: item not in enable_mod_result.results|selectattr('dest', 'string')|map(attribute='dest')|list
   notify: restart-radius
+  tags: modules
 ...
